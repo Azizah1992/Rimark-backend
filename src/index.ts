@@ -1,7 +1,7 @@
 import { server } from './server';// entry point 
 
 // server.listen({ port: 3001 }).catch((err) => {
-const port: any = process.env.PORT ?? process.env.$PORT ?? '3001';
+const port: any = process.env.PORT ?? process.env.$PORT ?? '3002';
 
 server
 	.listen({
