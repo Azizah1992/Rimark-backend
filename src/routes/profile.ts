@@ -1,22 +1,22 @@
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance } from 'fastify';
 import { createLifecoachController } from '../controllers/coachs';
-import { createComplementController } from '../controllers/complemetn';
+import { createProfileController } from '../controllers/profiel';
 
-const Complement = Type.Object({
+const Profile = Type.Object({
 	id: Type.String({ format: 'uuid' }),
 	name: Type.String(),
 	phone: Type.String(),
 });
-type Complement = Static<typeof Complement>;  //define query 
+type Profile = Static<typeof Profile>;  //define query 
 
-const GetComplementQuery = Type.Object({
+const GetProfileQuery = Type.Object({
 	name: Type.Optional(Type.String()),
 
 });
-type GetComplementQuery = Static<typeof GetComplementQuery>; //to define with type box
+type GetProfileQuery = Static<typeof GetProfileQuery>; //to define with type box
 
-export let complements: Complement[] = [  //which is defined in the contrlr coachs
+export let profiles: Profile[] = [  //which is defined in the contrlr coachs
 	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', name: 'Lamis', phone: '0511111111' },
 	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa5', name: 'Lamis', phone: '0511111111' },
 	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa2', name: 'Amani', phone: '0511111111' },
@@ -28,42 +28,42 @@ export let complements: Complement[] = [  //which is defined in the contrlr coac
 export default async function (server: FastifyInstance) {
 	server.route({
 		method: 'PUT',
-		url: '/complements',
+		url: '/profiles',
 		schema: {
-			summary: 'Creates new complement + all properties are required',
-			tags: ['Complements'],
-			body: Complement,
+			summary: 'Creates new profile + all properties are required',
+			tags: ['Profiles'],
+			body: Profile,
 		},
 		handler: async (request, reply) => {
-			const newComplements: any = request.body;
-			return createComplementController(complements, newComplements);
+			const newProfile: any = request.body;
+			return createProfileController(profiles, newProfile);
 		},
 	});
 
 	server.route({
 		method: 'PATCH',
-		url: '/complements/:id',
+		url: '/profiles/:id',
 		schema: {
-			summary: 'Update a complements by id + you dont need to pass all properties',
-			tags: ['Complements'],
-			body: Type.Partial(Complement),
+			summary: 'Update a coachs by id + you dont need to pass all properties',
+			tags: ['Profile'],
+			body: Type.Partial(Profile),
 			params: Type.Object({
 				id: Type.String({ format: 'uuid' }),
 			}),
 		},
 		handler: async (request, reply) => {
-			const newComplement: any = request.body;
-			return createLifecoachController(complements, newComplement);
+			const newProfile: any = request.body;
+			return createLifecoachController(profiles, newProfile);
 
 		},
 	});
 
 	server.route({
 		method: 'DELETE',
-		url: '/complements/:id',
+		url: '/profiles/:id',
 		schema: {
-			summary: 'Deletes a complement',
-			tags: ['Complements'],
+			summary: 'Deletes a profile',
+			tags: ['Profile'],
 			params: Type.Object({
 				id: Type.String({ format: 'uuid' }),
 			}),
@@ -71,55 +71,55 @@ export default async function (server: FastifyInstance) {
 		handler: async (request, reply) => {
 			const id = (request.params as any).id as string;
 
-			complements = complements .filter((c) => c.id !== id);
+			profiles = profiles.filter((c) => c.id !== id);
 
-			return complements ;
+			return profiles;
 		},
 	});
 
 	server.route({
 		method: 'GET',
-		url: '/complements/:id',
+		url: '/profiles/:id',
 		schema: {
-			summary: 'Returns one complement or null',
-			tags: ['Complement'],
+			summary: 'Returns one profile or null',
+			tags: ['Profiles'],
 			params: Type.Object({
 				id: Type.String({ format: 'uuid' }),
 			}),
 			response: {
-				'2xx': Type.Union([Complement, Type.Null()]),
+				'2xx': Type.Union([Profile, Type.Null()]),
 			},
 		},
 		handler: async (request, reply) => {
 			const id = (request.params as any).id as string;
 
-			return complements.find((c) => c.id === id) ?? null;
+			return profiles.find((c) => c.id === id) ?? null;
 		},
 	});
 
 	server.route({
 		method: 'GET',
-		url: '/complements',
+		url: '/profile',
 		schema: {
-			summary: 'Gets all complements',
-			tags: ['Complements'],
-			querystring: GetComplementQuery,
+			summary: 'Gets all contacts',
+			tags: ['Profiles'],
+			querystring: GetProfileQuery,
 			response: {
-				'2xx': Type.Array(Complement),
+				'2xx': Type.Array(Profile),
 			},
 		},
 		handler: async (request, reply) => {
-			const query = request.query as GetComplementQuery;
+			const query = request.query as GetProfileQuery;
 
 			if (query.name) {
-				return complements.filter((c) => c.name.includes(query.name ?? ''));
+				return profiles.filter((c) => c.name.includes(query.name ?? ''));
 			} else {
-				return complements;
+				return profiles;
 			}
 		},
 	});
 }
-function newComplement(complements: { id: string; name: string; phone: string; }[],newComplement: any): unknown {
+function newProfile(profiles: { id: string; name: string; phone: string; }[], newProfile: any): unknown {
 	throw new Error('Function not implemented.');
 }
 

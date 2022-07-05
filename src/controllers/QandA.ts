@@ -1,4 +1,4 @@
-//qusetion and answer to help to determaine case 
+// qusetion and answer to help to determaine case 
 // اسئلة ارشادية 
 
 // export function createQuestionController(questions: any[], newQuestions: any) {

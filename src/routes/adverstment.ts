@@ -44,7 +44,7 @@ export default async function (server: FastifyInstance) {
 		url: '/adverstment/:id',
 		schema: {
 			summary: 'Update a adverstment by id + you dont need to pass all properties',
-			tags: [''],
+			tags: ['Adverstment'],
 			body: Type.Partial(Adversmetn),
 			params: Type.Object({
 				id: Type.String({ format: 'uuid' }),

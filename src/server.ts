@@ -1,10 +1,12 @@
-import fastifyAutoload from '@fastify/autoload';// امبورت للبكجات 
+import fastifyAutoload from '@fastify/autoload';
+import fastifyJwt from '@fastify/jwt';
+import fastifySensible from '@fastify/sensible';
 import fastifySwagger from '@fastify/swagger';
 import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import fastify from 'fastify';
 import { join } from 'path';
 
-export const server = fastify({// عرف سيرفر وسوا له اكسبورت 
+export const server = fastify({
 	logger: true,
 	ajv: {
 		customOptions: {
@@ -15,18 +17,52 @@ export const server = fastify({// عرف سيرفر وسوا له اكسبورت
 	},
 }).withTypeProvider<TypeBoxTypeProvider>();
 
+server.register(fastifyJwt, {
+	secret: 'supersecret'
+})
+
 server.register(fastifySwagger, {
-	routePrefix: '/lifeify',
+	routePrefix: '/docs',
 	exposeRoute: true,
 	mode: 'dynamic',
 	openapi: {
 		info: {
-			title: 'life-coach API',
+			title: 'lifefiy',
 			version: '0.0.1',
+		},
+		security: [
+			{
+				bearerAuth: [],
+			},
+		],
+		components: {
+			securitySchemes: {
+				bearerAuth: {
+					type: 'http',
+					scheme: 'bearer',
+					bearerFormat: 'JWT',
+				},
+			},
 		},
 	},
 });
 
+server.register(fastifySensible);
+
 server.register(fastifyAutoload, {
 	dir: join(__dirname, 'routes'),
 });
+
+const port: any = process.env.PORT ?? process.env.$PORT ?? 3004;
+
+export function listen() {
+	server
+		.listen({
+			port: port,
+			host: '0.0.0.0',
+		})
+		.catch((err) => {
+			server.log.error(err);
+			process.exit(1);
+		});
+}

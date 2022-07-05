@@ -31,7 +31,7 @@ export default async function (server: FastifyInstance) {
 		url: '/blogs',
 		schema: {
 			summary: 'Creates new blog + all properties are required',
-			tags: ['Coaches'],
+			tags: ['Blogs'],
 			body: Blog,
 		},
 		handler: async (request, reply) => {

@@ -1,104 +1,186 @@
 import { Static, Type } from '@sinclair/typebox';
+import { Coach } from '@prisma/client';
+// import { FastifyInstance } from 'fastify';
+import { ObjectId } from 'bson';
 import { FastifyInstance } from 'fastify';
+import { partial } from 'lodash';
 import { createLifecoachController } from '../controllers/coachs';
+import Fuse from 'fuse.js';
+import { prismaClient } from '../prisma';
+import _ from 'lodash';
+import { addAuthorization } from '../hooks/auth';
 
-const Coach = Type.Object({
-	id: Type.String({ format: 'uuid' }),
+const Coach = Type.Object({  //validation 
+	coach_id: Type.Optional(Type.String()),
 	name: Type.String(),
 	phone: Type.String(),
+	email: Type.Optional(Type.String()),
+	// job_id: Type.String()
+
 });
-type Coach = Static<typeof Coach>;  //define query 
+
+const CoachWithoutId = Type.Object({  //validation 
+
+	name: Type.String(),
+	phone: Type.String(),
+	email: Type.Optional(Type.String()),
+	
+
+});
+
+
+
+
+type CoachWithoutId = Static<typeof CoachWithoutId>;
+
+const PartialCoachWithoutId = Type.Partial(CoachWithoutId);
+type PartialCoachWithoutId = Static<typeof PartialCoachWithoutId>;
 
 const GetCoachQuery = Type.Object({
-	name: Type.Optional(Type.String()),
-
+	text: Type.Optional(Type.String()),
 });
-type GetCoachQuery = Static<typeof GetCoachQuery>; //to define with type box
+type GetCoachQuery = Static<typeof GetCoachQuery>;
 
-export let coachs: Coach[] = [  //which is defined in the contrlr coachs
-	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', name: 'Lamis', phone: '0511111111' },
-	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa5', name: 'Lamis', phone: '0511111111' },
-	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa2', name: 'Amani', phone: '0511111111' },
-	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa1', name: 'Amani', phone: '0511111111' },
-	{ id: '3fa85f64-5717-4562-b3fc-2c963f66afa3', name: 'Amal', phone: '0511111111' },
-	{ id: '3', name: 'Azizah', phone: '123123123' },
-];
+const CoachParams = Type.Object({
+	coach_id: Type.String(),
+});
+type CoachParams = Static<typeof CoachParams>;
+
+// export let coachs: Coach[] = [
+// 	{ coach_id: new ObjectId().toHexString(), name: 'Lamis', phone: '0511111111', email: 'as@gmail' },
+// 	{ coach_id: new ObjectId().toHexString(), name: 'Lamis', phone: '0511111111', email: 'as@gmail' },
+// 	{ coach_id: new ObjectId().toHexString(), name: 'Amani', phone: '0511111111', email: 'as@gmail' },
+// 	{ coach_id: new ObjectId().toHexString(), name: 'Amani', phone: '0511111111', email: 'as@gmail' },
+// 	{ coach_id: new ObjectId().toHexString(), name: 'Saleh', phone: '0511111111', email: 'as@gmail' },
+// ];
 
 export default async function (server: FastifyInstance) {
+	// addAuthorization(server)
+	server.route({
+		method: 'POST',
+		url: '/coachs',
+		schema: {
+			summary: 'Creates new coach ',
+			tags: ['Coaches'],
+			body: CoachWithoutId,
+		},
+		handler: async (request, reply) => {
+			const coach = request.body as any;
+			await prismaClient.coach.create({
+				data: coach,
+
+
+			})
+			return { 'msg': 'couch added' };
+		},
+	});
+
+
 	server.route({
 		method: 'PUT',
 		url: '/coachs',
 		schema: {
-			summary: 'Creates new coach + all properties are required',
+			summary: 'Creates new contact + all properties are required',
 			tags: ['Coaches'],
 			body: Coach,
 		},
 		handler: async (request, reply) => {
-			const newCoach: any = request.body;
-			return createLifecoachController(coachs, newCoach);
+			const coach = request.body as Coach;
+			if (!ObjectId.isValid(coach.coach_id)) {
+				reply.badRequest('coach_id should be an ObjectId!');
+			} else {
+				return await prismaClient.coach.upsert({
+					where: { coach_id: coach.coach_id },
+					create: coach,
+					update: _.omit(coach, ['coach_id']), //omit bring every things exept id 
+				});
+			}
 		},
 	});
 
+
+
+
 	server.route({
-		method: 'PATCH',
-		url: '/coachs/:id',
+		method: 'PATCH',   //update
+		url: '/coachs/:coach_id',
 		schema: {
 			summary: 'Update a coachs by id + you dont need to pass all properties',
-			tags: ['Coachs'],
-			body: Type.Partial(Coach),
-			params: Type.Object({
-				id: Type.String({ format: 'uuid' }),
-			}),
+			tags: ['Coaches'],
+			body: PartialCoachWithoutId,
+			params: CoachParams,
 		},
 		handler: async (request, reply) => {
-			const newCoach: any = request.body;
-			return createLifecoachController(coachs, newCoach);
+			const { coach_id } = request.params as CoachParams;
+			if (!ObjectId.isValid(coach_id)) {
+				reply.badRequest('coach_id  should be an ObjectId!');
+				return;
+			}
 
+			const coach = request.body as any;
+
+			return prismaClient.coach.update({
+				where: { coach_id },
+				data: coach,
+			});
 		},
 	});
 
 	server.route({
 		method: 'DELETE',
-		url: '/coaches/:id',
+		url: '/coachs/:coach_id',
 		schema: {
-			summary: 'Deletes a coache',
+			summary: 'Deletes a coach',
 			tags: ['Coaches'],
-			params: Type.Object({
-				id: Type.String({ format: 'uuid' }),
-			}),
+			params: CoachParams,
 		},
 		handler: async (request, reply) => {
-			const id = (request.params as any).id as string;
+			const { coach_id } = request.params as CoachParams;
+			if (!ObjectId.isValid(coach_id)) {
+				reply.badRequest('coach_id should be an ObjectId!');
+				return;
+			}
 
-			coachs = coachs.filter((c) => c.id !== id);
+			await prismaClient.coach.delete({
+				where: { coach_id },
+			});
 
-			return coachs;
+			return { 'msg': 'couch deleted' }
+
 		},
 	});
 
+
 	server.route({
 		method: 'GET',
-		url: '/coaches/:id',
+		url: '/Coaches/:coach_id',
 		schema: {
-			summary: 'Returns one coach or null',
+			summary: 'Returns one contact or null',
 			tags: ['Coaches'],
-			params: Type.Object({
-				id: Type.String({ format: 'uuid' }),
-			}),
+			params: CoachParams,
 			response: {
 				'2xx': Type.Union([Coach, Type.Null()]),
 			},
 		},
 		handler: async (request, reply) => {
-			const id = (request.params as any).id as string;
+			const { coach_id } = request.params as CoachParams;
+			if (!ObjectId.isValid(coach_id)) {
+				reply.badRequest('coach_id should be an ObjectId!');
+				return;
+			}
 
-			return coachs.find((c) => c.id === id) ?? null;
+			return prismaClient.coach.findFirst({
+				where: { coach_id },
+			});
 		},
 	});
 
+
+
+	/// Get all contacts or search by name
 	server.route({
 		method: 'GET',
-		url: '/coaches',
+		url: '/coachs',
 		schema: {
 			summary: 'Gets all contacts',
 			tags: ['Coaches'],
@@ -110,11 +192,22 @@ export default async function (server: FastifyInstance) {
 		handler: async (request, reply) => {
 			const query = request.query as GetCoachQuery;
 
-			if (query.name) {
-				return coachs.filter((c) => c.name.includes(query.name ?? ''));
-			} else {
-				return coachs;
-			}
+			const coaches = await prismaClient.coach.findMany();
+			if (!query.text) return coaches;
+
+			const fuse = new Fuse(coaches, {
+				includeScore: true,
+				isCaseSensitive: false,
+				includeMatches: true,
+				findAllMatches: true,
+				threshold: 1,
+				keys: ['name', 'phone'],
+			});
+
+			console.log(JSON.stringify(fuse.search(query.text)));
+
+			const result: Coach[] = fuse.search(query.text).map((r) => r.item);
+			return result;
 		},
 	});
 }

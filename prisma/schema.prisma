@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id     String        @id @default(auto()) @map("_id") @db.ObjectId
+  email       String        @unique
+  name        String
+  profile     Profile?
+  phone       String
+  gender      Boolean 
+  password String
+  role    Role
+  // Appointment Appointment[]
+}
+enum Role {
+  USER
+  ADMIN
+  COACH
+}
+
+model Profile {
+  profile_id String @id @default(auto()) @map("_id") @db.ObjectId
+  bio        String
+  image_url  String
+  user       User   @relation(fields: [user_id], references: [user_id])
+  user_id    String @unique
+  coach_id   String @db.ObjectId
+}
+
+model Coach {
+  coach_id String @id @default(auto()) @map("_id") @db.ObjectId
+  email    String
+  phone    String
+  name     String @unique
+
+
+  // Appointment Appointment[]
+}
+
+model Appointment {
+
+  appointment_id String @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  // coach          Coach  @relation(fields: [Cname], references: [name])
+  // Coach_name          String //@unique
+  description    String
+  time           String
+  // user_name String
+  // user           User   @relation(fields: [user_id], references: [user_id])
+  // user_id        String @unique
+  // user_id        String? @db.ObjectId
+  //  coach_id String? @db.ObjectId
+
+
+}
+
+model Course {
+  course_id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  course_title String
+  description  String
+  user_id      String? @db.ObjectId
+
+}
+
+model Blog {
+  blog_id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  blog_title       String
+  blog_contant     String
+  blog_author      String
+  blog_insert_time String
+}
+
+model Activity {
+  activity_id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  activity_name   String
+  activity_time   String
+  activity_leader String
+  
+}
+
+//adversment appear in the home page
+
+model adversment {
+  adversment_id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  adversment_type        String
+  adversment_description String
+  sdversment_time        DateTime
+  adversmetn_end         DateTime
+  //@updatedAt
+}
+
+//users add question and see the other user question
+model popularq {
+  popularq_id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  popularq_time DateTime
+  most_Popularq Boolean
+  user_id       String   @unique
+
+}
+
+// in the home page gaudid questin and
+model QandA {
+  QandQ_id String @id @default(auto()) @map("_id") @db.ObjectId
+
+}
+
+//home page contant login blogs activity appointment onlinecours
+//popular question guided-question which is Qand ansewer
+
+
