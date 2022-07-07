@@ -47,13 +47,6 @@ const ActivityParams = Type.Object({
 });
 type ActivityParams = Static<typeof ActivityParams>;
 
-// export let coachs: Coach[] = [
-// 	{ coach_id: new ObjectId().toHexString(), name: 'Lamis', phone: '0511111111', email: 'as@gmail' },
-// 	{ coach_id: new ObjectId().toHexString(), name: 'Lamis', phone: '0511111111', email: 'as@gmail' },
-// 	{ coach_id: new ObjectId().toHexString(), name: 'Amani', phone: '0511111111', email: 'as@gmail' },
-// 	{ coach_id: new ObjectId().toHexString(), name: 'Amani', phone: '0511111111', email: 'as@gmail' },
-// 	{ coach_id: new ObjectId().toHexString(), name: 'Saleh', phone: '0511111111', email: 'as@gmail' },
-// ];
 
 export default async function (server: FastifyInstance) {
 	server.route({
@@ -76,7 +69,7 @@ export default async function (server: FastifyInstance) {
 	});
 
 
-	// server.route({
+	// // server.route({
 	// 	method: 'PUT',
 	// 	url: '/activites',
 	// 	schema: {
@@ -126,54 +119,54 @@ export default async function (server: FastifyInstance) {
 	// 	},
 	// });
 
-	// server.route({
-	// 	method: 'DELETE',
-	// 	url: '/activites/:activity_id',
-	// 	schema: {
-	// 		summary: 'Deletes a activity',
-	// 		tags: ['Activites'],
-	// 		params: ActivityParams,
-	// 	},
-	// 	handler: async (request, reply) => {
-	// 		const { activity_id } = request.params as ActivityParams;
-	// 		if (!ObjectId.isValid(activity_id)) {
-	// 			reply.badRequest('activity_id should be an ObjectId!');
-	// 			return;
-	// 		}
+	server.route({
+		method: 'DELETE',
+		url: '/activites/:activity_id',
+		schema: {
+			summary: 'Deletes a activity',
+			tags: ['activites'],
+			params: ActivityParams,
+		},
+		handler: async (request, reply) => {
+			const { activity_id } = request.params as ActivityParams;
+			if (!ObjectId.isValid(activity_id)) {
+				reply.badRequest('activity_id should be an ObjectId!');
+				return;
+			}
 
-	// 		await prismaClient.activity.delete({
-	// 			where: { activity_id },
-	// 		});
+			await prismaClient.activity.delete({
+				where: { activity_id },
+			});
 
-	// 		return { 'msg': 'couch activity' }
+			return { 'msg': 'activity deleted ' }
 
-	// 	},
-	// });
+		},
+	});
 
 
-	// server.route({
-	// 	method: 'GET',
-	// 	url: '/activites/:activity_id',
-	// 	schema: {
-	// 		summary: 'Returns one contact or null',
-	// 		tags: ['Activites'],
-	// 		params: ActivityParams,
-	// 		response: {
-	// 			'2xx': Type.Union([Activity, Type.Null()]),
-	// 		},
-	// 	},
-	// 	handler: async (request, reply) => {
-	// 		const { activity_id } = request.params as ActivityParams;
-	// 		if (!ObjectId.isValid(activity_id)) {
-	// 			reply.badRequest('activity_id should be an ObjectId!');
-	// 			return;
-	// 		}
+	server.route({
+		method: 'GET',
+		url: '/activites/:activity_id',
+		schema: {
+			summary: 'Returns one contact or null',
+			tags: ['activites'],
+			params: ActivityParams,
+			response: {
+				'2xx': Type.Union([Activity, Type.Null()]),
+			},
+		},
+		handler: async (request, reply) => {
+			const { activity_id } = request.params as ActivityParams;
+			if (!ObjectId.isValid(activity_id)) {
+				reply.badRequest('activity_id should be an ObjectId!');
+				return;
+			}
 
-	// 		return prismaClient.activity.findFirst({
-	// 			where: { activity_id },
-	// 		});
-	// 	},
-	// });
+			return prismaClient.activity.findFirst({
+				where: { activity_id },
+			});
+		},
+	});
 
 
 
