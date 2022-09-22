@@ -2,6 +2,7 @@ import fastifyAutoload from '@fastify/autoload';
 import fastifyJwt from '@fastify/jwt';
 import fastifySensible from '@fastify/sensible';
 import fastifySwagger from '@fastify/swagger';
+import fastifyCors from '@fastify/cors'
 import { ajvTypeBoxPlugin, TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import fastify from 'fastify';
 import { join } from 'path';
@@ -17,6 +18,8 @@ export const server = fastify({
 	},
 }).withTypeProvider<TypeBoxTypeProvider>();
 
+server.register(fastifyCors);
+
 server.register(fastifyJwt, {
 	secret: 'supersecret'
 })
@@ -27,7 +30,7 @@ server.register(fastifySwagger, {
 	mode: 'dynamic',
 	openapi: {
 		info: {
-			title: 'lifefiy',
+			title: 'Rimarkbl',
 			version: '0.0.1',
 		},
 		security: [
@@ -53,7 +56,7 @@ server.register(fastifyAutoload, {
 	dir: join(__dirname, 'routes'),
 });
 
-const port: any = process.env.PORT ?? process.env.$PORT ?? 3004;
+const port: any = process.env.PORT ?? process.env.$PORT ?? 3009;
 
 export function listen() {
 	server

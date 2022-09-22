@@ -1,6 +1,6 @@
 import { Static, Type } from '@sinclair/typebox';
 import { FastifyInstance } from 'fastify';
-import { createLifecoachController } from '../controllers/coachs';
+// import { createLifecoachController } from '../controllers/coachs';
 import { createProfileController } from '../controllers/profiel';
 
 const Profile = Type.Object({
@@ -45,7 +45,7 @@ export default async function (server: FastifyInstance) {
 		url: '/profiles/:id',
 		schema: {
 			summary: 'Update a coachs by id + you dont need to pass all properties',
-			tags: ['Profile'],
+			tags: ['Profiles'],
 			body: Type.Partial(Profile),
 			params: Type.Object({
 				id: Type.String({ format: 'uuid' }),
@@ -53,7 +53,7 @@ export default async function (server: FastifyInstance) {
 		},
 		handler: async (request, reply) => {
 			const newProfile: any = request.body;
-			return createLifecoachController(profiles, newProfile);
+			return createProfileController(profiles, newProfile);
 
 		},
 	});
@@ -63,7 +63,7 @@ export default async function (server: FastifyInstance) {
 		url: '/profiles/:id',
 		schema: {
 			summary: 'Deletes a profile',
-			tags: ['Profile'],
+			tags: ['Profiles'],
 			params: Type.Object({
 				id: Type.String({ format: 'uuid' }),
 			}),

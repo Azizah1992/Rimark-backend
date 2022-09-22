@@ -6,29 +6,47 @@ import { User } from '@prisma/client';
 import { ObjectId } from 'bson';
 import { FastifyInstance } from 'fastify';
 import { partial } from 'lodash';
-import { createLifecoachController } from '../controllers/coachs';
+// import { createLifecoachController } from '../controllers/coachs';
 import Fuse from 'fuse.js';
 import { prismaClient } from '../prisma';
 import _ from 'lodash';
 
 const User = Type.Object({  //validation 
 	user_id: Type.Optional(Type.String()),
-	name: Type.String(),
-	phone: Type.String(),
+	first_name: Type.String(),
+	last_name: Type.String(),
+	full_name: Type.String(),
+	username: Type.String(),
+	phone: Type.Optional(Type.String()),
 	email: Type.Optional(Type.String()),
-	gender: Type.Boolean(),
+	gender: Type.String(),
+	street: Type.String(),
+	district: Type.String(),
+	city: Type.String(),
+	building_number: Type.Optional(Type.String()),
 	password: Type.String(),
+	articles: Type.String(),
+	articles_title: Type.String(),
     role:Type.String()
 
 });
 
 const UserWithoutId = Type.Object({  //validation 
 
-	name: Type.String(),
+	username: Type.String(),
+	first_name: Type.String(),
+	last_name: Type.String(),
+	full_name: Type.String(),
 	phone: Type.String(),
 	email: Type.Optional(Type.String()),
-	gender: Type.Boolean(),
+	gender: Type.String(),
+	street: Type.String(),
+	district: Type.String(),
+	city: Type.String(),
+	building_number: Type.Optional(Type.String()),
 	password: Type.String(),
+	articles: Type.String(),
+	articles_title: Type.String(),
 	role:Type.String()
 
 });
@@ -51,13 +69,7 @@ const UserParams = Type.Object({
 });
 type UserParams = Static<typeof UserParams>;
 
-// export let users: User[] = [
-// 	{ user_id: new ObjectId().toHexString(), name: 'Lamis', phone: '0511111111', email: 'as@gmail', gender: true },
-// 	{ user_id: new ObjectId().toHexString(), name: 'Lamis', phone: '0511111111', email: 'as@gmail', gender: true },
-// 	{ user_id: new ObjectId().toHexString(), name: 'Amani', phone: '0511111111', email: 'as@gmail', gender: true },
-// 	{ user_id: new ObjectId().toHexString(), name: 'Amani', phone: '0511111111', email: 'as@gmail', gender: true },
-// 	{ user_id: new ObjectId().toHexString(), name: 'Saleh', phone: '0511111111', email: 'as@gmail', gender: true },
-// ];
+
 
 export default async function (server: FastifyInstance) {
 	server.route({
@@ -188,7 +200,7 @@ export default async function (server: FastifyInstance) {
 		url: '/users',
 		schema: {
 			summary: 'Gets all users',
-			tags: ['users'],
+			tags: ['Users'],
 			querystring: GetUserQuery,
 			response: {
 				'2xx': Type.Array(User),
@@ -216,6 +228,6 @@ export default async function (server: FastifyInstance) {
 		},
 	});
 }
-function newUser(users: { id: string; name: string; phone: string; }[], newUser: any): unknown {
+function newUser(users: { id: string; username: string;first_name: string;last_name: string;full_name: string; phone: string;email: string;building_number: string;street: string;district: string;city: string;articles: string;articles_title: string; }[], newUser: any): unknown {
 	throw new Error('Function not implemented.');
 }
